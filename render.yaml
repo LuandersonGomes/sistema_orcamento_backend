@@ -2,15 +2,7 @@ services:
   - type: web
     name: sistema-orcamento-backend
     env: java
-    runtime: "java11"
-    plan: free
-    branch: main
+    runtime: java11
     buildCommand: "./mvnw clean install -DskipTests"
     startCommand: "java -jar target/*.jar"
-    envVars:
-      - key: DATABASE_URL
-        sync: false
-      - key: DATABASE_USERNAME
-        sync: false
-      - key: DATABASE_PASSWORD
-        sync: false
+    root: "."
