@@ -7,3 +7,10 @@ services:
     branch: main
     buildCommand: "./mvnw clean install -DskipTests"
     startCommand: "java -jar target/*.jar"
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USERNAME
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
