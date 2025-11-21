@@ -1,11 +1,8 @@
-type: blueprint
-version: 1
-
 services:
   - type: web
     name: sistema-orcamento-backend
     env: java
-    runtime: java11
+    runtime: java17
     buildCommand: "./mvnw clean install -DskipTests"
     startCommand: "java -jar target/*.jar"
     plan: free
