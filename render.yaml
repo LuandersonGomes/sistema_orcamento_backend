@@ -5,4 +5,4 @@ services:
     runtime: java11
     buildCommand: "./mvnw clean install -DskipTests"
     startCommand: "java -jar target/*.jar"
-    root: "."
+    plan: free
