@@ -25,20 +25,23 @@ class SistemaAdmin {
         const password = $('#password').val();
 
         try {
-            // ⭐ USE FormData EM VEZ DE JSON ⭐
-            const formData = new FormData();
-            formData.append('username', username);
-            formData.append('password', password);
+            console.log('Enviando login com JSON:', { username, password });
 
-            console.log('Enviando login com FormData:', { username, password });
-
+            // ⭐ USE JSON EM VEZ DE FORMDATA ⭐
             const response = await fetch(`${API_BASE}/auth/login`, {
                 method: 'POST',
-                body: formData, // ⭐ FORMDATA, NÃO JSON
-                credentials: 'include'
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+                // ⭐ REMOVA credentials: 'include' SE NÃO PRECISAR DE SESSÃO ⭐
             });
 
             console.log('Status do login:', response.status);
+            console.log('Content-Type da resposta:', response.headers.get('content-type'));
 
             if (response.ok) {
                 const data = await response.json();
@@ -52,9 +55,15 @@ class SistemaAdmin {
                 this.showDashboard();
                 this.showSuccess('Login realizado com sucesso!');
             } else {
-                const errorData = await response.json();
-                console.log('Erro de login:', errorData);
-                this.showError(errorData.error || 'Credenciais inválidas');
+                // Tenta ler como texto primeiro
+                const errorText = await response.text();
+                console.log('Erro completo:', errorText);
+                try {
+                    const errorData = JSON.parse(errorText);
+                    this.showError(errorData.error || 'Credenciais inválidas');
+                } catch {
+                    this.showError(errorText || 'Credenciais inválidas');
+                }
             }
         } catch (error) {
             console.error('Erro no login:', error);
