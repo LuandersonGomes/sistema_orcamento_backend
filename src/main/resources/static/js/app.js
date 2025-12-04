@@ -28,7 +28,7 @@ class SistemaAdmin {
             console.log('Enviando login com JSON:', { username, password });
 
             // ⭐ USE JSON EM VEZ DE FORMDATA ⭐
-            const response = await fetch(`${API_BASE}/auth/login`, {
+            const response = await fetch(`${API_BASE}/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -764,77 +764,87 @@ class SistemaAdmin {
         }
     }
 
-    async showOrcamentoDetalhes(orcamentoId) {
-        try {
-            const response = await this.makeAuthenticatedRequest(`${API_BASE}/orcamentos/${orcamentoId}`);
-            const orcamento = await response.json();
+     async showOrcamentoDetalhes(orcamentoId) {
+            try {
+                const response = await this.makeAuthenticatedRequest(`${API_BASE}/orcamentos/${orcamentoId}`);
+                const orcamento = await response.json();
 
-            const content = `
-            <div class="content-header">
-                <div class="container-fluid">
-                    <div class="row mb-2">
-                        <div class="col-sm-6">
-                            <h1 class="m-0">Orçamento - ${orcamento.descricao}</h1>
-                        </div>
-                        <div class="col-sm-6">
-                            <button class="btn btn-secondary float-right" onclick="sistema.showView('orcamento')">
-                                <i class="fas fa-arrow-left"></i> Voltar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="content">
-                <div class="container-fluid">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Informações do Orçamento</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Descrição:</strong> ${orcamento.descricao}</p>
-                                    <p><strong>Data de Criação:</strong> ${new Date(orcamento.dataCriacao).toLocaleDateString()}</p>
-                                    <p><strong>Imóvel:</strong> ${orcamento.imovel ? orcamento.imovel.logradouro : 'N/A'}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Status:</strong> 
-                                        <span class="badge bg-${this.getStatusBadgeColor(orcamento.status)}">
-                                            ${this.getStatusText(orcamento.status)}
-                                        </span>
-                                    </p>
-                                    <p><strong>Quantidade de Serviços:</strong> ${orcamento.servicos ? orcamento.servicos.length : 0}</p>
-                                </div>
+                const content = `
+                <div class="content-header">
+                    <div class="container-fluid">
+                        <div class="row mb-2">
+                            <div class="col-sm-6">
+                                <h1 class="m-0">Orçamento - ${orcamento.descricao}</h1>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="card mt-3">
-                        <div class="card-header">
-                            <h3 class="card-title">
-                                <i class="fas fa-file-alt"></i> Documentos por Secretaria
-                            </h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-12">
-                                    <div id="secretariasTabs"></div>
-                                    <div id="secretariasContent" class="mt-3"></div>
+                            <div class="col-sm-6">
+                                <div class="float-right">
+                                    <button class="btn btn-info mr-2" onclick="sistema.gerarPDFChecklistOrcamento(${orcamento.id})">
+                                        <i class="fas fa-file-pdf"></i> Gerar Checklist PDF
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="sistema.showView('orcamento')">
+                                        <i class="fas fa-arrow-left"></i> Voltar
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        `;
 
-            $('#content').html(content);
-            await this.loadSecretariasOrcamento(orcamento);
-        } catch (error) {
-            this.showError('Erro ao carregar detalhes do orçamento');
-        }
-    }
+                <div class="content">
+                    <div class="container-fluid">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h3 class="card-title">Informações do Orçamento</h3>
+                                    <button class="btn btn-sm btn-info" onclick="sistema.gerarPDFChecklistOrcamento(${orcamento.id})">
+                                        <i class="fas fa-file-pdf mr-1"></i> Checklist PDF
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Descrição:</strong> ${orcamento.descricao}</p>
+                                        <p><strong>Data de Criação:</strong> ${new Date(orcamento.dataCriacao).toLocaleDateString()}</p>
+                                        <p><strong>Imóvel:</strong> ${orcamento.imovel ? orcamento.imovel.logradouro : 'N/A'}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Status:</strong>
+                                            <span class="badge bg-${this.getStatusBadgeColor(orcamento.status)}">
+                                                ${this.getStatusText(orcamento.status)}
+                                            </span>
+                                        </p>
+                                        <p><strong>Quantidade de Serviços:</strong> ${orcamento.servicos ? orcamento.servicos.length : 0}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <i class="fas fa-file-alt"></i> Documentos por Secretaria
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div id="secretariasTabs"></div>
+                                        <div id="secretariasContent" class="mt-3"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+                $('#content').html(content);
+                await this.loadSecretariasOrcamento(orcamento);
+            } catch (error) {
+                this.showError('Erro ao carregar detalhes do orçamento');
+            }
+     }
 
     async loadSecretariasOrcamento(orcamento) {
         const tabs = document.getElementById('secretariasTabs');
@@ -1191,11 +1201,11 @@ class SistemaAdmin {
     generateDocumentoActions(documentoEnviado, orcamentoId) {
         return `
         <div class="btn-group w-100" role="group">
-            <button type="button" class="btn btn-sm btn-info" 
+            <button type="button" class="btn btn-sm btn-info"
                     onclick="sistema.viewDocumentoInfo(${documentoEnviado.id})">
-                <i class="fas fa-eye me-1"></i>Ver
+                <i class="fas fa-download me-1"></i>Baixar
             </button>
-            <button type="button" class="btn btn-sm btn-danger" 
+            <button type="button" class="btn btn-sm btn-danger"
                     onclick="sistema.deleteDocumento(${documentoEnviado.id}, ${orcamentoId})">
                 <i class="fas fa-trash me-1"></i>Excluir
             </button>
@@ -1206,13 +1216,19 @@ class SistemaAdmin {
     generateDocumentoInfo(documentoEnviado) {
         return `
         <div class="documento-info mt-2 p-2 bg-light rounded">
-            <small class="text-muted">
+            <small class="text-muted d-block">
                 <i class="fas fa-file me-1"></i>
                 Arquivo: ${documentoEnviado.arquivoLocal}
+            </small>
+            <small class="text-muted">
+                <i class="fas fa-calendar me-1"></i>
+                Data: ${documentoEnviado.dataUpload ? new Date(documentoEnviado.dataUpload).toLocaleDateString() : 'N/A'}
             </small>
         </div>
     `;
     }
+
+
     // Métodos para Secretarias
     async showSecretaria() {
         const content = `
@@ -2692,50 +2708,62 @@ class SistemaAdmin {
 
 
     async downloadDocumento(documentoId) {
-        try {
-            // Como não temos endpoint de download, vamos apenas informar
-            const response = await this.makeAuthenticatedRequest(
-                `${API_BASE}/documentos/orcamento/${orcamentoId}`
-            );
-
-            if (response.ok) {
-                const documentos = await response.json();
-                const documento = documentos.find(d => d.id === documentoId);
-                if (documento) {
-                    this.showInfo(`Arquivo: ${documento.arquivoLocal} - Salvo em: uploads/`);
-                }
-            } else {
-                this.showError('Documento não encontrado');
-            }
-        } catch (error) {
-            console.error('Erro:', error);
-            this.showError('Erro ao buscar informações do documento');
-        }
+        await this.viewDocumentoInfo(documentoId); // Reusa a mesma lógica
     }
 
     async viewDocumentoInfo(documentoId) {
         try {
-            const response = await this.makeAuthenticatedRequest(
-                `${API_BASE}/documentos/orcamento/${orcamentoId}`
-            );
+            // Tenta baixar o documento diretamente
+            const url = `${API_BASE}/documentos/download/${documentoId}`;
 
-            if (response.ok) {
-                const documentos = await response.json();
-                const documento = documentos.find(d => d.id === documentoId);
-                if (documento) {
-                    this.showInfo(`
-                    <strong>Documento:</strong> ${documento.arquivoLocal}<br>
-                    <strong>Tipo:</strong> ${documento.tipo ? documento.tipo.nomeTipo : 'N/A'}<br>
-                    <strong>Local:</strong> uploads/${documento.arquivoLocal}
-                `);
-                }
+            // Cria um link temporário para download
+            const a = document.createElement('a');
+            a.href = url;
+            a.target = '_blank'; // Abre em nova aba
+            a.rel = 'noopener noreferrer';
+
+            // Adiciona token de autenticação se necessário
+            if (this.authToken) {
+                a.setAttribute('data-token', this.authToken);
             }
+
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            this.showSuccess('Iniciando download do documento...');
+
         } catch (error) {
-            console.error('Erro:', error);
-            this.showError('Erro ao buscar informações do documento');
+            console.error('Erro ao baixar documento:', error);
+            this.showError('Erro ao baixar documento. Tente novamente.');
         }
     }
 
+    async deleteDocumento(documentoId, orcamentoId) {
+        if (confirm('Tem certeza que deseja excluir este documento?')) {
+            try {
+                const response = await this.makeAuthenticatedRequest(
+                    `${API_BASE}/documentos/${documentoId}`,
+                    {
+                        method: 'DELETE'
+                    }
+                );
+
+                if (response.ok) {
+                    this.showSuccess('Documento excluído com sucesso!');
+                    // Recarregar a visualização do orçamento
+                    if (orcamentoId) {
+                        await this.showOrcamentoDetalhes(orcamentoId);
+                    }
+                } else {
+                    this.showError('Erro ao excluir documento');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                this.showError('Erro ao excluir documento');
+            }
+        }
+    }
 
     // Métodos para Checklist de Documentos
     async showChecklist() {
@@ -3150,6 +3178,358 @@ class SistemaAdmin {
             this.showDashboard();
         }
     }
+
+    // Adicione este método à classe SistemaAdmin
+    async gerarPDFChecklistOrcamento(orcamentoId) {
+        try {
+            // 1. Buscar dados do orçamento
+            const responseOrcamento = await this.makeAuthenticatedRequest(
+                `${API_BASE}/orcamentos/${orcamentoId}`
+            );
+
+            if (!responseOrcamento.ok) {
+                this.showError('Erro ao buscar dados do orçamento');
+                return;
+            }
+
+            const orcamento = await responseOrcamento.json();
+
+            // 2. Buscar checklists de todos os serviços do orçamento
+            const checklists = [];
+            if (orcamento.servicos && orcamento.servicos.length > 0) {
+                for (const servico of orcamento.servicos) {
+                    try {
+                        const responseChecklist = await this.makeAuthenticatedRequest(
+                            `${API_BASE}/checklist/servico/${servico.id}`
+                        );
+
+                        if (responseChecklist.ok) {
+                            const checklist = await responseChecklist.json();
+                            checklists.push({
+                                servico: servico.nome,
+                                secretaria: servico.secretaria ? servico.secretaria.nome : 'N/A',
+                                documentos: checklist.tiposDocumentos || []
+                            });
+                        }
+                    } catch (error) {
+                        console.error(`Erro ao buscar checklist do serviço ${servico.id}:`, error);
+                    }
+                }
+            }
+
+            // 3. Verificar e carregar jsPDF se necessário
+            await this.carregarJSPDF();
+
+            // 4. Gerar PDF
+            this.gerarPDFComDados(orcamento, checklists);
+
+        } catch (error) {
+            console.error('Erro ao gerar PDF:', error);
+            this.showError('Erro ao gerar PDF do checklist');
+        }
+    }
+
+    async carregarJSPDF() {
+        return new Promise((resolve, reject) => {
+            // Verificar se jsPDF já está carregado
+            if (window.jspdf && window.jspdf.jsPDF) {
+                resolve();
+                return;
+            }
+
+            // Mostrar mensagem de carregamento
+            this.showSuccess('Carregando biblioteca PDF...');
+
+            // Criar elemento script
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+            script.integrity = 'sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==';
+            script.crossOrigin = 'anonymous';
+
+            script.onload = () => {
+                console.log('jsPDF carregado com sucesso');
+                resolve();
+            };
+
+            script.onerror = () => {
+                this.showError('Erro ao carregar biblioteca PDF. Tente novamente.');
+                reject(new Error('Falha ao carregar jsPDF'));
+            };
+
+            document.head.appendChild(script);
+        });
+    }
+
+    // Método para gerar o PDF com os dados
+    gerarPDFComDados(orcamento, checklists) {
+        try {
+            // Verificar se jsPDF está disponível
+            if (!window.jspdf || !window.jspdf.jsPDF) {
+                this.showError('Biblioteca PDF não disponível. Tente novamente.');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Configurações
+            const marginLeft = 15;
+            const marginTop = 20;
+            let yPos = marginTop;
+            const lineHeight = 7;
+            const pageHeight = doc.internal.pageSize.height;
+
+            // Título
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(40, 40, 40);
+            doc.text('CHECKLIST DE DOCUMENTOS', 105, yPos, { align: 'center' });
+
+            // Subtítulo
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'normal');
+            yPos += 10;
+            doc.text('ORÇAMENTO Nº ' + orcamento.id, 105, yPos, { align: 'center' });
+            yPos += 15;
+
+            // Linha divisória
+            doc.setDrawColor(200, 200, 200);
+            doc.line(marginLeft, yPos, 200 - marginLeft, yPos);
+            yPos += 10;
+
+            // Informações do Orçamento
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.text('INFORMAÇÕES DO ORÇAMENTO', marginLeft, yPos);
+            yPos += 8;
+
+            doc.setFont('helvetica', 'normal');
+            const infoOrcamento = [
+                `Descrição: ${orcamento.descricao || 'N/A'}`,
+                `Data: ${new Date(orcamento.dataCriacao).toLocaleDateString('pt-BR')}`,
+                `Status: ${this.getStatusText(orcamento.status)}`,
+                `Imóvel: ${orcamento.imovel ? orcamento.imovel.logradouro : 'N/A'}`
+            ];
+
+            infoOrcamento.forEach(info => {
+                doc.text(info, marginLeft + 5, yPos);
+                yPos += 6;
+            });
+
+            yPos += 10;
+
+            // Checklist por Serviço
+            doc.setFont('helvetica', 'bold');
+            doc.text('DOCUMENTOS NECESSÁRIOS', marginLeft, yPos);
+            yPos += 8;
+
+            if (checklists.length === 0) {
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(100, 100, 100);
+                doc.text('Nenhum checklist encontrado para os serviços deste orçamento.', marginLeft + 5, yPos);
+                yPos += 6;
+            } else {
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(40, 40, 40);
+
+                checklists.forEach((checklist, index) => {
+                    // Verificar se precisa de nova página
+                    if (yPos > pageHeight - 60) {
+                        doc.addPage();
+                        yPos = marginTop;
+                    }
+
+                    // Título do Serviço
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(12);
+                    doc.text(`${index + 1}. ${checklist.servico}`, marginLeft, yPos);
+                    yPos += 7;
+
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(10);
+                    doc.setTextColor(80, 80, 80);
+                    doc.text(`Secretaria: ${checklist.secretaria}`, marginLeft + 5, yPos);
+                    yPos += 6;
+
+                    // Documentos necessários
+                    doc.setTextColor(40, 40, 40);
+                    if (checklist.documentos.length === 0) {
+                        doc.text('   • Nenhum documento configurado', marginLeft + 5, yPos);
+                        yPos += 6;
+                    } else {
+                        checklist.documentos.forEach((documento, docIndex) => {
+                            // Verificar se precisa de nova página
+                            if (yPos > pageHeight - 20) {
+                                doc.addPage();
+                                yPos = marginTop;
+                            }
+
+                            doc.text(`   ${docIndex + 1}. ${documento.nomeTipo}`, marginLeft + 5, yPos);
+                            yPos += 6;
+                        });
+                    }
+
+                    yPos += 8; // Espaço entre serviços
+                    doc.setDrawColor(240, 240, 240);
+                    doc.line(marginLeft, yPos - 2, 200 - marginLeft, yPos - 2);
+                });
+            }
+
+            yPos += 10;
+
+            // Resumo
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(11);
+            doc.text('RESUMO', marginLeft, yPos);
+            yPos += 7;
+
+            doc.setFont('helvetica', 'normal');
+            const totalServicos = checklists.length;
+            const totalDocumentos = checklists.reduce((total, checklist) => total + checklist.documentos.length, 0);
+
+            doc.text(`• Total de Serviços: ${totalServicos}`, marginLeft + 5, yPos);
+            yPos += 6;
+            doc.text(`• Total de Documentos Necessários: ${totalDocumentos}`, marginLeft + 5, yPos);
+            yPos += 10;
+
+            // Linha final
+            doc.setDrawColor(200, 200, 200);
+            doc.line(marginLeft, yPos, 200 - marginLeft, yPos);
+            yPos += 5;
+
+            // Rodapé
+            doc.setFontSize(8);
+            doc.setTextColor(120, 120, 120);
+            doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`,
+                     marginLeft, pageHeight - 15);
+            doc.text(`Sistema de Gestão de Orçamentos • Página ${doc.internal.getNumberOfPages()} de ${doc.internal.getNumberOfPages()}`,
+                     105, pageHeight - 15, { align: 'center' });
+
+            // Salvar PDF
+            const filename = `checklist_orcamento_${orcamento.id}_${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(filename);
+
+            this.showSuccess(`PDF gerado com sucesso: ${filename}`);
+
+        } catch (error) {
+            console.error('Erro ao gerar PDF:', error);
+            this.showError('Erro ao criar PDF. Tente novamente.');
+        }
+    }
+
+    // Método para gerar o PDF usando jsPDF
+    gerarPDF(orcamento, checklists) {
+        // Verificar se jsPDF está carregado
+        if (typeof jsPDF === 'undefined') {
+            this.showError('Biblioteca jsPDF não carregada. Inclua no HTML: <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>');
+            return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Configurações
+        const marginLeft = 10;
+        const marginTop = 20;
+        let yPos = marginTop;
+        const lineHeight = 7;
+        const pageHeight = doc.internal.pageSize.height;
+
+        // Título
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text('CHECKLIST DE DOCUMENTOS - ORÇAMENTO', marginLeft, yPos);
+        yPos += lineHeight * 2;
+
+        // Informações do Orçamento
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Informações do Orçamento:', marginLeft, yPos);
+        yPos += lineHeight;
+
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Descrição: ${orcamento.descricao || 'N/A'}`, marginLeft + 5, yPos);
+        yPos += lineHeight;
+        doc.text(`ID: ${orcamento.id}`, marginLeft + 5, yPos);
+        yPos += lineHeight;
+        doc.text(`Data: ${new Date(orcamento.dataCriacao).toLocaleDateString()}`, marginLeft + 5, yPos);
+        yPos += lineHeight;
+        doc.text(`Status: ${this.getStatusText(orcamento.status)}`, marginLeft + 5, yPos);
+        yPos += lineHeight;
+
+        if (orcamento.imovel) {
+            doc.text(`Imóvel: ${orcamento.imovel.logradouro || ''} ${orcamento.imovel.lote || ''}/${orcamento.imovel.quadra || ''}`, marginLeft + 5, yPos);
+            yPos += lineHeight;
+        }
+
+        yPos += lineHeight; // Espaço
+
+        // Checklist por Serviço
+        doc.setFont('helvetica', 'bold');
+        doc.text('Documentos Necessários por Serviço:', marginLeft, yPos);
+        yPos += lineHeight;
+
+        if (checklists.length === 0) {
+            doc.setFont('helvetica', 'normal');
+            doc.text('Nenhum checklist encontrado para os serviços deste orçamento.', marginLeft + 5, yPos);
+            yPos += lineHeight;
+        } else {
+            checklists.forEach((checklist, index) => {
+                // Verificar se precisa de nova página
+                if (yPos > pageHeight - 50) {
+                    doc.addPage();
+                    yPos = marginTop;
+                }
+
+                // Título do Serviço
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(11);
+                doc.text(`${index + 1}. ${checklist.servico}`, marginLeft, yPos);
+                yPos += lineHeight;
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                doc.text(`Secretaria: ${checklist.secretaria}`, marginLeft + 5, yPos);
+                yPos += lineHeight;
+
+                // Documentos necessários
+                if (checklist.documentos.length === 0) {
+                    doc.text('   - Nenhum documento configurado', marginLeft + 5, yPos);
+                    yPos += lineHeight;
+                } else {
+                    checklist.documentos.forEach((documento, docIndex) => {
+                        // Verificar se precisa de nova página
+                        if (yPos > pageHeight - 20) {
+                            doc.addPage();
+                            yPos = marginTop;
+                        }
+
+                        doc.text(`   ${docIndex + 1}. ${documento.nomeTipo}`, marginLeft + 5, yPos);
+                        yPos += lineHeight;
+                    });
+                }
+
+                yPos += lineHeight; // Espaço entre serviços
+            });
+        }
+
+        yPos += lineHeight;
+
+        // Rodapé
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'italic');
+        doc.text(`Gerado em: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`, marginLeft, pageHeight - 10);
+        doc.text(`Sistema de Gestão de Orçamentos - Página ${doc.internal.getNumberOfPages()}`, marginLeft, pageHeight - 5);
+
+        // Salvar PDF
+        const filename = `checklist_orcamento_${orcamento.id}_${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(filename);
+
+        this.showSuccess(`PDF gerado: ${filename}`);
+    }
+
+    // Atualize o método showOrcamentoDetalhes para adicionar o botão de PDF
+
 }
 
 // Global functions

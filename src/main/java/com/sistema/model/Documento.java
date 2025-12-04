@@ -1,5 +1,6 @@
 package com.sistema.model;
 
+import java.time.LocalDateTime;
 import javax.persistence.*;
 
 @Entity
@@ -20,6 +21,8 @@ public class Documento {
     @JoinColumn(name = "orcamento_id")
     private Orcamento orcamento;
 
+    private LocalDateTime dataUpload;
+
     // getters e setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -29,4 +32,12 @@ public class Documento {
     public void setArquivoLocal(String arquivoLocal) { this.arquivoLocal = arquivoLocal; }
     public Orcamento getOrcamento() { return orcamento; }
     public void setOrcamento(Orcamento orcamento) { this.orcamento = orcamento; }
+    // getters e setters
+    public LocalDateTime getDataUpload() {
+        return dataUpload;
+    }
+
+    public void setDataUpload(LocalDateTime dataUpload) {
+        this.dataUpload = dataUpload;
+    }
 }
