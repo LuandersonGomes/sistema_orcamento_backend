@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  api:
+    build: .
+    container_name: sistema_orcamento_api
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/orcamento_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres123
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    container_name: sistema_orcamento_db
+    restart: always
+    environment:
+      POSTGRES_DB: orcamento_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
